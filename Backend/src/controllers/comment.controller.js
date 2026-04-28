@@ -21,6 +21,8 @@ export const addComment = async (req, res) => {
       });
     }
 
+    console.log(parentComment);
+
     let parentCommentDoc = null;
     // Validate parentComment if provided
     if (parentComment) {
@@ -40,7 +42,7 @@ export const addComment = async (req, res) => {
       text: text.trim(),
       parentComment: parentComment || null,
       isChild: !!parentComment,
-      isAI: false,
+      isAI: false
     });
 
     await comment.save();
@@ -53,9 +55,11 @@ export const addComment = async (req, res) => {
 
     // Trigger AI reply asynchronously if comment mentions @cherry
     if (text.includes('@cherry')) {
-      triggerAIReply(postid, comment._id, text).catch(error => {
-        console.error('AI reply generation error:', error);
-      });
+      triggerAIReply(postid, comment.parentComment || comment._id, text).catch(
+        error => {
+          console.error('AI reply generation error:', error);
+        }
+      );
     }
 
     return res.status(201).json({

@@ -1,6 +1,10 @@
 import express from 'express';
-import { addComment, getPostComments, deleteComment } from '../controllers/comment.controller.js';
-import { protect } from '../middleware/auth.middleware.js';
+import {
+  addComment,
+  getPostComments,
+  deleteComment
+} from '../controllers/comment.controller.js';
+import { authMiddleware } from '../middleware/auth.middleware.js';
 import { addCommentValidator } from '../validation/comment.validator.js';
 import { validateRequest } from '../utils/validate.js';
 
