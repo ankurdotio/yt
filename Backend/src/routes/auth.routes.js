@@ -1,20 +1,15 @@
 import { Router } from "express";
-import {} from "../controllers/auth.controller.js";
-import bcrypt from "bcrypt";
+import authController from "../controllers/auth.controller.js";
 
 const authRouter = Router();
 
 authRouter
   .route("/login")
-  .post();
+  .post(authController.login);
 
 authRouter
   .route("/signup")
-  .post((req,res)=>{
-    const { name, username, email, password } = req.body;
-
-
-  });
+  .post(authController.signup);
 
 
 export default authRouter;
