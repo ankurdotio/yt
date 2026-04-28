@@ -122,6 +122,21 @@
 }
 ```
 
+### Image Upload via Pixxo
+
+route: /api/posts/upload-image
+
+
+request_body:{
+  image: buffer
+}
+
+response_body {
+  success: true,
+  url: px.pixxo.io/yt-uploads/images/download.png,
+  message: "Image uploaded successfully" 
+}
+
 ---
 
 ### Get Feed (Global Timeline)
