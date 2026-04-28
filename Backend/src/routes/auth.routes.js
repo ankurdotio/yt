@@ -1,21 +1,21 @@
 import { Router } from "express";
 import authController from "../controllers/auth.controller.js";
 import authValidator from "../validation/auth.validator.js";
-import { validate } from "../utils/validate.js";
+import { validateRequest } from '../utils/validate.js';
 
 const authRouter = Router();
 
 authRouter.post(
   "/signup",
   authValidator.signupValidator,
-  validate,
+  validateRequest,
   authController.signup
 );
 
 authRouter.post(
   "/login",
   authValidator.loginValidator,
-  validate,
+  validateRequest,
   authController.login
 );
 
