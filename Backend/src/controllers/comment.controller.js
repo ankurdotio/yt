@@ -38,8 +38,9 @@ export const addComment = async (req, res) => {
       postid,
       userid: userId,
       text: text.trim(),
-      parentComment: parentCommentDoc.parentComment || parentComment || null,
-      isAI: false
+      parentComment: parentComment || null,
+      isChild: !!parentComment,
+      isAI: false,
     });
 
     await comment.save();

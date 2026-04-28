@@ -24,6 +24,10 @@ const commentSchema = new mongoose.Schema(
       ref: 'Comment',
       default: null,
     },
+    isChild: {
+        type: Boolean,
+        default: false,
+    },
     isAI: {
       type: Boolean,
       default: false,

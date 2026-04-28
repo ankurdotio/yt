@@ -11,7 +11,8 @@ import {
   uploadImage,
 } from '../controllers/posts.controller.js';
 import { authMiddleware } from '../middleware/auth.middleware.js';
-import { createPostValidator, validateRequest } from '../validation/post.validator.js';
+import { createPostValidator } from '../validation/post.validator.js';
+import { validateRequest } from '../utils/validate.js';
 
 const router = express.Router();
 
