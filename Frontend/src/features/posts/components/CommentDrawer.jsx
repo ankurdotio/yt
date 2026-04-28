@@ -23,7 +23,7 @@ const Avatar = ({ user, size = 8 }) => {
       className={`${s} rounded-full bg-[#111] flex items-center justify-center text-white flex-shrink-0`}
       style={{ fontSize: size <= 6 ? '10px' : '12px' }}
     >
-      {(user?.username ?? '?')[0].toUpperCase()}
+      {(user?.username ?? '?')[ 0 ].toUpperCase()}
     </div>
   );
 };
@@ -68,7 +68,7 @@ const ReplyRow = ({ reply, postId, onDelete, currentUser }) => (
 
 /* ── Single comment row ── */
 const CommentRow = ({ comment, postId, onDelete, onReply, currentUser }) => {
-  const [showReplies, setShowReplies] = useState(true);
+  const [ showReplies, setShowReplies ] = useState(true);
   const replyCount = comment.replies?.length ?? 0;
 
   return (
@@ -166,36 +166,41 @@ const CommentDrawer = ({ postId, isOpen, onClose }) => {
     deleteComment,
   } = useComments(postId);
 
-  const [text, setText] = useState('');
-  const [replyingTo, setReplyingTo] = useState(null); // { _id, userid.username }
+  const [ text, setText ] = useState('');
+  const [ replyingTo, setReplyingTo ] = useState(null); // { _id, userid.username }
   const inputRef = useRef(null);
   const scrollRef = useRef(null);
 
   // Fetch when opened (once per postId)
   useEffect(() => {
     if (isOpen && postId) fetchComments();
-  }, [isOpen, postId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ isOpen, postId ]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Lock body scroll when open
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [isOpen]);
+  }, [ isOpen ]);
 
   // Focus input when replying
   useEffect(() => {
     if (replyingTo) inputRef.current?.focus();
-  }, [replyingTo]);
+  }, [ replyingTo ]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const trimmed = text.trim();
     if (!trimmed) return;
 
-    const ok = await addComment({
-      text: trimmed,
-      parentComment: replyingTo?._id ?? null,
-    });
+    const payload = {
+      text: trimmed
+    }
+
+    if (replyingTo?._id) {
+      payload.parentComment = replyingTo.parentComment || replyingTo._id;
+    }
+
+    const ok = await addComment(payload);
 
     if (ok) {
       setText('');
@@ -220,9 +225,8 @@ const CommentDrawer = ({ postId, isOpen, onClose }) => {
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/30 z-30 transition-opacity duration-300 ${
-          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
+        className={`fixed inset-0 bg-black/30 z-30 transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
         onClick={onClose}
         aria-hidden="true"
       />

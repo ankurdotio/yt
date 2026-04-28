@@ -1,18 +1,28 @@
 import { body, validationResult } from 'express-validator';
 
 const addCommentValidator = [
+  (req, res, next) => {
+    console.log('Validating comment:', req.body);
+    next();
+  },
+
   body('postid')
-    .notEmpty().withMessage('postid is required')
-    .isMongoId().withMessage('Invalid post ID'),
+    .notEmpty()
+    .withMessage('postid is required')
+    .isMongoId()
+    .withMessage('Invalid post ID'),
 
   body('text')
-    .notEmpty().withMessage('Comment text is required')
+    .notEmpty()
+    .withMessage('Comment text is required')
     .trim()
-    .isLength({ min: 1, max: 1000 }).withMessage('Comment must be between 1 and 1000 characters'),
+    .isLength({ min: 1, max: 1000 })
+    .withMessage('Comment must be between 1 and 1000 characters'),
 
   body('parentComment')
     .optional()
-    .isMongoId().withMessage('Invalid parent comment ID'),
+    .isMongoId()
+    .withMessage('Invalid parent comment ID')
 ];
 
 // Validation error handler middleware

@@ -16,7 +16,7 @@ import { getCommentsApi, addCommentApi, deleteCommentApi } from '../service/comm
  */
 const useComments = (postId) => {
   const dispatch = useDispatch();
-  const bucket = useSelector((state) => state.posts.commentsByPost[postId]);
+  const bucket = useSelector((state) => state.posts.commentsByPost[ postId ]);
   const currentUser = useSelector((state) => state.auth.user);
 
   const comments = bucket?.comments ?? [];
@@ -45,14 +45,22 @@ const useComments = (postId) => {
         })
       );
     }
-  }, [dispatch, postId]);
+  }, [ dispatch, postId ]);
 
   /** Add a top-level comment or a reply */
   const addComment = useCallback(
     async ({ text, parentComment = null }) => {
       dispatch(addCommentStart(postId));
       try {
-        const response = await addCommentApi({ postid: postId, text, parentComment });
+
+        const payload = {
+          text: text
+        }
+        if (parentComment) {
+          payload.parentComment = parentComment
+        }
+
+        const response = await addCommentApi({ postid: postId, ...payload });
         dispatch(addCommentSuccess({ postId, comment: response.data }));
         return true;
       } catch (err) {
@@ -65,7 +73,7 @@ const useComments = (postId) => {
         return false;
       }
     },
-    [dispatch, postId]
+    [ dispatch, postId ]
   );
 
   /** Delete a comment (owner only) */
@@ -78,7 +86,7 @@ const useComments = (postId) => {
         // silently fail — UI doesn't revert optimistically here
       }
     },
-    [dispatch, postId]
+    [ dispatch, postId ]
   );
 
   return {

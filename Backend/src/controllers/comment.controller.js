@@ -17,17 +17,18 @@ export const addComment = async (req, res) => {
     if (!post) {
       return res.status(404).json({
         success: false,
-        message: 'Post not found',
+        message: 'Post not found'
       });
     }
 
+    let parentCommentDoc = null;
     // Validate parentComment if provided
     if (parentComment) {
-      const parentCommentDoc = await Comment.findById(parentComment);
+      parentCommentDoc = await Comment.findById(parentComment);
       if (!parentCommentDoc) {
         return res.status(404).json({
           success: false,
-          message: 'Parent comment not found',
+          message: 'Parent comment not found'
         });
       }
     }
@@ -37,19 +38,21 @@ export const addComment = async (req, res) => {
       postid,
       userid: userId,
       text: text.trim(),
-      parentComment: parentComment || null,
-      isAI: false,
+      parentComment: parentCommentDoc.parentComment || parentComment || null,
+      isAI: false
     });
 
     await comment.save();
     await comment.populate('userid', 'username avatar');
 
     // Increment commentcount on post
-    await Post.findByIdAndUpdate(postid, { commentcount: post.commentcount + 1 });
+    await Post.findByIdAndUpdate(postid, {
+      commentcount: post.commentcount + 1
+    });
 
     // Trigger AI reply asynchronously if comment mentions @cherry
     if (text.includes('@cherry')) {
-      triggerAIReply(postid, comment._id, text).catch((error) => {
+      triggerAIReply(postid, comment._id, text).catch(error => {
         console.error('AI reply generation error:', error);
       });
     }
@@ -57,14 +60,14 @@ export const addComment = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: 'Comment added successfully',
-      data: comment,
+      data: comment
     });
   } catch (error) {
     console.error('Add comment error:', error);
     return res.status(500).json({
       success: false,
       message: 'Error adding comment',
-      error: error.message,
+      error: error.message
     });
   }
 };
@@ -77,12 +80,14 @@ export const getPostComments = async (req, res) => {
   try {
     const { postid } = req.params;
 
+    console.log(req.params);
+
     // Check if post exists
     const post = await Post.findById(postid);
     if (!post) {
       return res.status(404).json({
         success: false,
-        message: 'Post not found',
+        message: 'Post not found'
       });
     }
 
@@ -94,10 +99,12 @@ export const getPostComments = async (req, res) => {
 
     // Structure comments with nested replies
     const structuredComments = comments
-      .filter((comment) => !comment.parentComment)
-      .map((comment) => ({
+      .filter(c => !c.parentComment)
+      .map(comment => ({
         ...comment,
-        replies: comments.filter((reply) => reply.parentComment?.toString() === comment._id.toString()),
+        replies: comments.filter(
+          reply => reply.parentComment?.toString() === comment._id.toString()
+        )
       }));
 
     return res.status(200).json({
@@ -105,15 +112,15 @@ export const getPostComments = async (req, res) => {
       message: 'Comments fetched successfully',
       data: {
         comments: structuredComments,
-        total: comments.length,
-      },
+        total: comments.length
+      }
     });
   } catch (error) {
     console.error('Get comments error:', error);
     return res.status(500).json({
       success: false,
       message: 'Error fetching comments',
-      error: error.message,
+      error: error.message
     });
   }
 };
@@ -132,7 +139,7 @@ export const deleteComment = async (req, res) => {
     if (!comment) {
       return res.status(404).json({
         success: false,
-        message: 'Comment not found',
+        message: 'Comment not found'
       });
     }
 
@@ -140,7 +147,7 @@ export const deleteComment = async (req, res) => {
     if (comment.userid.toString() !== userId) {
       return res.status(403).json({
         success: false,
-        message: 'Unauthorized: You can only delete your own comments',
+        message: 'Unauthorized: You can only delete your own comments'
       });
     }
 
@@ -151,7 +158,7 @@ export const deleteComment = async (req, res) => {
     const post = await Post.findById(comment.postid);
     if (post) {
       await Post.findByIdAndUpdate(comment.postid, {
-        commentcount: Math.max(0, post.commentcount - 1),
+        commentcount: Math.max(0, post.commentcount - 1)
       });
     }
 
@@ -160,14 +167,14 @@ export const deleteComment = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Comment deleted successfully',
+      message: 'Comment deleted successfully'
     });
   } catch (error) {
     console.error('Delete comment error:', error);
     return res.status(500).json({
       success: false,
       message: 'Error deleting comment',
-      error: error.message,
+      error: error.message
     });
   }
 };
@@ -189,10 +196,10 @@ async function triggerAIReply(postid, commentId, userText) {
       .lean();
 
     // Extract comment texts
-    const commentTexts = recentComments.map((c) => c.text);
+    const commentTexts = recentComments.map(c => c.text);
 
     // Extract image URLs from post media
-    const imageUrls = post.media.map((m) => m.url);
+    const imageUrls = post.media.map(m => m.url);
 
     // Clean @cherry mention from user text
     const cleanedText = userText.replace(/@cherry/g, '').trim();
@@ -201,7 +208,7 @@ async function triggerAIReply(postid, commentId, userText) {
     const aiReplyText = await generateCommentReply({
       userContent: cleanedText,
       comments: commentTexts,
-      imageUrls,
+      imageUrls
     });
 
     if (!aiReplyText) {
@@ -222,7 +229,7 @@ async function triggerAIReply(postid, commentId, userText) {
       userid: aiUser._id,
       text: aiReplyText,
       parentComment: commentId,
-      isAI: true,
+      isAI: true
     });
 
     await aiComment.save();

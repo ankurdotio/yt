@@ -17,7 +17,15 @@ export const getCommentsApi = async (postId) => {
 
 /** Add a top-level comment or a reply */
 export const addCommentApi = async ({ postid, text, parentComment = null }) => {
-  const { data } = await commentsApi.post('/', { postid, text, parentComment });
+
+  const payload = {
+    text: text
+  }
+  if (parentComment) {
+    payload.parentComment = parentComment
+  }
+
+  const { data } = await commentsApi.post('/', { postid, ...payload });
   return data; // { success, data: comment }
 };
 

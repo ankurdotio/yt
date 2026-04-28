@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import env from '../config/env.js';
-import { fetchImageFromURL } from '../utils/utils';
+import { fetchImageFromURL } from '../utils/utils.js';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
@@ -12,7 +12,7 @@ const ai = new GoogleGenAI({
   apiKey: env.geminiApiKey
 });
 
-const generateCommentReply = async function ({
+export const generateCommentReply = async function ({
   userContent,
   comments,
   imageUrls
@@ -76,8 +76,8 @@ const generateCommentReply = async function ({
     }
   });
 
-  const { comment } = response.contents[0].text
-    ? JSON.parse(response.contents[0].text)
+  const { comment } = response.candidates[0]?.content.parts[0].text
+    ? JSON.parse(response.candidates[0]?.content.parts[0].text)
     : {};
 
   return comment;
