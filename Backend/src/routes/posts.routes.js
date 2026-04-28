@@ -1,22 +1,14 @@
 import { Router } from 'express';
+import multer from 'multer';
+import { uploadImage } from '../controllers/posts.controller.js';
 
 const postsRouter = Router();
 
-/**
- * TODO: Implement the following routes for posts:
- * - POST /api/posts: Create a new post
- * - GET /api/posts: Get all posts
- *
- */
+// Multer memory storage
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-/**
- * support images type:
- * PNG - image/png
- * JPEG - image/jpeg
- * WEBP - image/webp
- * HEIC - image/heic
- * HEIF - image/heif
- */
-postsRouter.route('/');
+// Image upload route
+postsRouter.post('/upload-image', upload.single('image'), uploadImage);
 
 export default postsRouter;
