@@ -31,7 +31,4 @@ export const validateRequest = (req, res, next) => {
   next();
 };
 
-export default {
-  addCommentValidator,
-  validateRequest
-};
+export { addCommentValidator };

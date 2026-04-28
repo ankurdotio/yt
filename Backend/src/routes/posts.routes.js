@@ -10,7 +10,7 @@ import {
   toggleLike,
   uploadImage,
 } from '../controllers/posts.controller.js';
-import { protect } from '../middleware/auth.middleware.js';
+import { authMiddleware } from '../middleware/auth.middleware.js';
 import { createPostValidator, validateRequest } from '../validation/post.validator.js';
 
 const router = express.Router();
@@ -36,12 +36,12 @@ router.post('/upload-image', upload.single('image'), uploadImage);
  * Protected Routes (require authentication)
  */
 // Create post
-router.post('/', protect, createPostValidator, validateRequest, createPost);
+router.post('/', authMiddleware, createPostValidator, validateRequest, createPost);
 
 // Delete post
-router.delete('/:id', protect, deletePost);
+router.delete('/:id', authMiddleware, deletePost);
 
 // Toggle like/unlike
-router.post('/:id/like', protect, toggleLike);
+router.post('/:id/like', authMiddleware, toggleLike);
 
 export default router;
