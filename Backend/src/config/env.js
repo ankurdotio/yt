@@ -37,7 +37,9 @@ const config = {
   dbUri: process.env.MONGODB_URI,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN,
-  geminiApiKey: process.env.GEMINI_API_KEY
+  geminiApiKey: process.env.GEMINI_API_KEY,
+  pixxoEmail: process.env.PIXXO_EMAIL,
+  pixxoPassword: process.env.PIXXO_PASSWORD,
 };
 
 export default Object.freeze(config);

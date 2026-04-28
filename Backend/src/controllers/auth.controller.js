@@ -47,6 +47,7 @@ export const login = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 export const signup = async (req, res) => {
   try {
     const { username, email, password } = req.body;
