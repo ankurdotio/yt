@@ -6,6 +6,8 @@ const config = {
   dbUri: process.env.DB_URI || "mongodb://localhost:27017/myapp",
   jwtSecret: process.env.JWT_SECRET || "your_jwt_secret",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "1h",
+  pixxoEmail: process.env.PIXXO_EMAIL || "",
+  pixxoPassword: process.env.PIXXO_PASSWORD || "",
 };  
 
 export default Object.freeze(config);
