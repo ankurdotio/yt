@@ -1,22 +1,47 @@
 import { Router } from 'express';
+import multer from 'multer';
+import express from 'express';
+import {
+  createPost,
+  getFeed,
+  getUserPosts,
+  getSinglePost,
+  deletePost,
+  toggleLike,
+  uploadImage,
+} from '../controllers/posts.controller.js';
+import { protect } from '../middleware/auth.middleware.js';
+import { createPostValidator, validateRequest } from '../validation/post.validator.js';
 
+const router = express.Router();
 
-const postsRouter = Router();
-
+// Multer memory storage
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 /**
- * TODO: Implement the following routes for posts:
- * - POST /api/posts: Create a new post
- * - GET /api/posts: Get all posts
+ * Public Routes
  */
+// Get feed (global timeline)
+router.get('/', getFeed);
 
+// Get user posts
+router.get('/user/:userId', getUserPosts);
+
+// Get single post
+router.get('/:id', getSinglePost);
+
+// Image upload route
+postsRouter.post('/upload-image', upload.single('image'), uploadImage);
 /**
- * support images type:
- * PNG - image/png
- * JPEG - image/jpeg
- * WEBP - image/webp
- * HEIC - image/heic
- * HEIF - image/heif
+ * Protected Routes (require authentication)
  */
-postsRouter.route('/');
+// Create post
+router.post('/', protect, createPostValidator, validateRequest, createPost);
 
-export default postsRouter;
+// Delete post
+router.delete('/:id', protect, deletePost);
+
+// Toggle like/unlike
+router.post('/:id/like', protect, toggleLike);
+
+export default router;

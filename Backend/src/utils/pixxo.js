@@ -22,6 +22,10 @@ async function uploadFile(filename) {
     console.log("✅ Upload complete!");
     console.log(`URL: ${result.url}`);
 
+    void fs.unlink(filePath).catch((err) => {
+      console.error("⚠️ Failed to delete temp file:", err.message);
+    });
+
     return result;
   } catch (error) {
     console.error("❌ Upload failed:", error.message);
