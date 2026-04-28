@@ -31,7 +31,7 @@ router.get('/user/:userId', getUserPosts);
 router.get('/:id', getSinglePost);
 
 // Image upload route
-postsRouter.post('/upload-image', upload.single('image'), uploadImage);
+router.post('/upload-image', upload.single('image'), uploadImage);
 /**
  * Protected Routes (require authentication)
  */
