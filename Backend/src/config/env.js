@@ -22,7 +22,7 @@ if (!process.env.JWT_EXPIRES_IN) {
   process.exit(1);
 }
 
-if (!process.env.DB_URI) {
+if (!process.env.MONGODB_URI) {
   console.error('Warning: DB_URI is not set. Please set it in the .env file.');
   process.exit(1);
 }
@@ -34,7 +34,7 @@ if (!process.env.PORT) {
 
 const config = {
   port: process.env.PORT,
-  dbUri: process.env.DB_URI,
+  dbUri: process.env.MONGODB_URI,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN,
   geminiApiKey: process.env.GEMINI_API_KEY
