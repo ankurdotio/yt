@@ -22,3 +22,8 @@ const postsSlice = createSlice({
     }
   }
 });
+
+export const { fetchPostsStart, fetchPostsSuccess, fetchPostsFailure } =
+  postsSlice.actions;
+
+export default postsSlice.reducer;
