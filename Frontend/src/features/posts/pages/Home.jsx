@@ -1,7 +1,8 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { Link } from 'react-router';
 import usePosts from '../hooks/usePosts';
 import Sidebar from '../components/Sidebar';
+import CommentDrawer from '../components/CommentDrawer';
 
 /* ── helpers ── */
 const timeAgo = (iso) => {
@@ -13,7 +14,7 @@ const timeAgo = (iso) => {
 };
 
 /* ── PostCard ── */
-const PostCard = ({ post }) => (
+const PostCard = ({ post, onCommentClick }) => (
   <article className="pb-10 mb-10 border-b border-[#f0f0f0] last:border-none last:mb-0">
     {/* Header */}
     <div className="flex items-center gap-3 mb-4">
@@ -60,7 +61,13 @@ const PostCard = ({ post }) => (
         </svg>
         <span className="text-xs">{post.likecount ?? 0}</span>
       </button>
-      <button className="flex items-center gap-1.5 text-[#737373] hover:text-[#111] transition-colors group">
+
+      {/* Comment button — opens drawer */}
+      <button
+        onClick={() => onCommentClick(post._id)}
+        className="flex items-center gap-1.5 text-[#737373] hover:text-[#111] transition-colors group"
+        aria-label={`View ${post.commentcount ?? 0} comments`}
+      >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
           <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
         </svg>
@@ -118,6 +125,7 @@ const EmptyFeed = () => (
 /* ── Home page ── */
 const Home = () => {
   const { posts, feedLoading, feedError, pagination, fetchFeed, loadMorePosts } = usePosts();
+  const [activeCommentPostId, setActiveCommentPostId] = useState(null);
 
   // Initial load
   useEffect(() => {
@@ -189,7 +197,11 @@ const Home = () => {
           ) : (
             <>
               {posts.map((post) => (
-                <PostCard key={post._id} post={post} />
+                <PostCard
+                  key={post._id}
+                  post={post}
+                  onCommentClick={(postId) => setActiveCommentPostId(postId)}
+                />
               ))}
 
               {/* Load-more sentinel */}
@@ -212,6 +224,13 @@ const Home = () => {
           )}
         </div>
       </main>
+
+      {/* ── Comment Drawer ── */}
+      <CommentDrawer
+        postId={activeCommentPostId}
+        isOpen={!!activeCommentPostId}
+        onClose={() => setActiveCommentPostId(null)}
+      />
     </div>
   );
 };

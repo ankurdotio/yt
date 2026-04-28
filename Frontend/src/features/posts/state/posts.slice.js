@@ -15,6 +15,8 @@ const postsSlice = createSlice({
     uploadLoading: false,
     uploadError: null,
     uploadedImageUrl: null,
+    // Comments — keyed by postId
+    commentsByPost: {}, // { [postId]: { comments: [], total: 0, loading: bool, error: str|null, addLoading: bool } }
   },
   reducers: {
     // ── Feed ──
@@ -45,7 +47,7 @@ const postsSlice = createSlice({
     },
     uploadImageSuccess(state, action) {
       state.uploadLoading = false;
-      state.uploadedImageUrl = action.payload; // URL string
+      state.uploadedImageUrl = action.payload;
     },
     uploadImageFailure(state, action) {
       state.uploadLoading = false;
@@ -64,7 +66,6 @@ const postsSlice = createSlice({
     },
     createPostSuccess(state, action) {
       state.createLoading = false;
-      // Prepend to feed
       state.posts = [action.payload, ...state.posts];
       state.uploadedImageUrl = null;
     },
@@ -74,6 +75,87 @@ const postsSlice = createSlice({
     },
     clearCreateError(state) {
       state.createError = null;
+    },
+
+    // ── Comments ──
+    fetchCommentsStart(state, action) {
+      const pid = action.payload;
+      state.commentsByPost[pid] = {
+        ...(state.commentsByPost[pid] ?? {}),
+        loading: true,
+        error: null,
+      };
+    },
+    fetchCommentsSuccess(state, action) {
+      const { postId, comments, total } = action.payload;
+      state.commentsByPost[postId] = {
+        comments,
+        total,
+        loading: false,
+        error: null,
+        addLoading: false,
+      };
+      // Sync comment count on the post card
+      const post = state.posts.find((p) => p._id === postId);
+      if (post) post.commentcount = total;
+    },
+    fetchCommentsFailure(state, action) {
+      const { postId, error } = action.payload;
+      if (state.commentsByPost[postId]) {
+        state.commentsByPost[postId].loading = false;
+        state.commentsByPost[postId].error = error;
+      }
+    },
+
+    addCommentStart(state, action) {
+      const pid = action.payload;
+      if (state.commentsByPost[pid]) state.commentsByPost[pid].addLoading = true;
+    },
+    addCommentSuccess(state, action) {
+      const { postId, comment } = action.payload;
+      const bucket = state.commentsByPost[postId];
+      if (!bucket) return;
+      bucket.addLoading = false;
+      if (comment.parentComment) {
+        // It's a reply — nest under parent
+        const parent = bucket.comments.find((c) => c._id === comment.parentComment);
+        if (parent) {
+          parent.replies = [...(parent.replies ?? []), comment];
+        }
+      } else {
+        bucket.comments = [comment, ...bucket.comments];
+        bucket.total = (bucket.total ?? 0) + 1;
+      }
+      // Increment count on the post card
+      const post = state.posts.find((p) => p._id === postId);
+      if (post && !comment.parentComment) post.commentcount = (post.commentcount ?? 0) + 1;
+    },
+    addCommentFailure(state, action) {
+      const { postId, error } = action.payload;
+      if (state.commentsByPost[postId]) {
+        state.commentsByPost[postId].addLoading = false;
+        state.commentsByPost[postId].error = error;
+      }
+    },
+
+    deleteCommentSuccess(state, action) {
+      const { postId, commentId } = action.payload;
+      const bucket = state.commentsByPost[postId];
+      if (!bucket) return;
+      // Remove top-level
+      const before = bucket.comments.length;
+      bucket.comments = bucket.comments.filter((c) => c._id !== commentId);
+      // Remove as reply
+      bucket.comments.forEach((c) => {
+        if (c.replies?.length) {
+          c.replies = c.replies.filter((r) => r._id !== commentId);
+        }
+      });
+      if (bucket.comments.length < before) {
+        bucket.total = Math.max(0, (bucket.total ?? 1) - 1);
+        const post = state.posts.find((p) => p._id === postId);
+        if (post) post.commentcount = Math.max(0, (post.commentcount ?? 1) - 1);
+      }
     },
   },
 });
@@ -91,6 +173,13 @@ export const {
   createPostSuccess,
   createPostFailure,
   clearCreateError,
+  fetchCommentsStart,
+  fetchCommentsSuccess,
+  fetchCommentsFailure,
+  addCommentStart,
+  addCommentSuccess,
+  addCommentFailure,
+  deleteCommentSuccess,
 } = postsSlice.actions;
 
 export default postsSlice.reducer;
