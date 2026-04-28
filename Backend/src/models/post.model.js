@@ -5,39 +5,43 @@ const postSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      required: true
     },
     media: {
       type: [
         {
           url: {
             type: String,
-            required: true,
+            required: true
           },
           alt: {
             type: String,
-            default: '',
+            default: ''
           },
-        },
+          type: {
+            type: String,
+            default: 'image/jpeg'
+          }
+        }
       ],
       required: true,
-      minlength: 1,
+      minlength: 1
     },
     caption: {
       type: String,
       default: '',
-      maxlength: 2200,
+      maxlength: 2200
     },
     likecount: {
       type: Number,
       default: 0,
-      min: 0,
+      min: 0
     },
     commentcount: {
       type: Number,
       default: 0,
-      min: 0,
-    },
+      min: 0
+    }
   },
   { timestamps: true }
 );
