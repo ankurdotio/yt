@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import User from "../models/user.model.js";
 import userModel from "../models/user.model.js";
 
-export const login = (req,res)=>{
+export const login = async (req,res) => {
   try {
     const { username, password } = req.body;
     if (!req.body.username || !req.body.password) {
@@ -45,7 +45,7 @@ export const login = (req,res)=>{
   }
 }
 
-const signup = (req,res)=> {
+const signup = async (req,res) => {
   try {
     const { username, email, password } = req.body;
     if (!username || !email || !password) {
